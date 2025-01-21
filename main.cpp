@@ -15,14 +15,18 @@ InterruptIn button(BUTTON1);
 
 BufferedSerial serial_port(USBTX, USBRX);
 
+Timer t;
+
 void led_on()
 {
+    t.start();
     led = 1;
     flag = 1;
 }
 
 void led_off()
 {
+    t.stop();
     led = 0;
     flag = 1;
 }
@@ -54,7 +58,10 @@ int main()
             if (flag == 1)
             {
                 serial_port.write("Button Released\n", 17);
+                ThisThread::sleep_for(100ms);
+                printf("Pressed duration: %llu ms\n", std::chrono::duration_cast<std::chrono::milliseconds>(t.elapsed_time()).count());
                 flag = 0;
+                t.reset();
             }
         }
         ThisThread::sleep_for(100ms);
