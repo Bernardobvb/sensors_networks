@@ -10,6 +10,7 @@
 #define LED2_PIN LED2
 
 int flag = 0;
+float freq = .2;
 
 DigitalOut led1(LED1);
 DigitalOut led2(LED2);
@@ -20,11 +21,19 @@ BufferedSerial serial_port(USBTX, USBRX);
 Timer t;
 Ticker flipper;
 
+void flip()
+{
+    led2 = !led2;
+}
+
 void led_on()
 {
     t.start();
     led1 = 1;
     flag = 1;
+    freq += 0.1;
+    flipper.detach();
+    flipper.attach(&flip, freq);
 }
 
 void led_off()
@@ -32,11 +41,6 @@ void led_off()
     t.stop();
     led1 = 0;
     flag = 1;
-}
-
-void flip()
-{
-    led2 = !led2;
 }
 
 int main()
@@ -50,7 +54,6 @@ int main()
     );
     button.rise(&led_on);
     button.fall(&led_off);
-    flipper.attach(&flip, 2.0);
 
     while (true) {
         if (led1 == 1)
